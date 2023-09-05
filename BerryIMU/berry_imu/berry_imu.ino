@@ -1,4 +1,5 @@
-#include <i2c_t3.h>
+//#include <i2c_t3.h>
+#include "Wire.h"
 #include "LSM9DS0.h"
 
 #define DT  0.02          // Loop time E.g 0.02 = 20 milliseconds
