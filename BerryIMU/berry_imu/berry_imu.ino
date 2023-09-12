@@ -1,9 +1,11 @@
 //#include <i2c_t3.h>
+#include "Arduino.h"
 #include "Wire.h"
-#include "LSM9DS0.h"
+#include "LSM6DSL.h"
+#include "LIS3MDL.h"
 
 #define DT  0.02          // Loop time E.g 0.02 = 20 milliseconds
-#define AA  0.80         // complementary filter constant
+#define AA  0.97         // complementary filter constant
 #define G_GAIN 0.070    // [deg/s/LSB]
 
 byte buff[6];
@@ -57,15 +59,16 @@ void setup_berryIMU()
 
 void enable_acclerometer()
 {
-  writeTo(ACC_ADDRESS,CTRL_REG1_XM, 0b01100111); //  z,y,x axis enabled, continuos update,  100Hz data rate
-  writeTo(ACC_ADDRESS,CTRL_REG2_XM, 0b00100000); // +/- 16G full scale
+        //initialise the accelerometer
+        writeTo(LSM6DSL_ADDRESS,LSM6DSL_CTRL1_XL,0b10011111);        // ODR 3.33 kHz, +/- 8g , BW = 400hz
+        writeTo(LSM6DSL_ADDRESS,LSM6DSL_CTRL8_XL,0b11001000);        // Low pass filter enabled, BW9, composite filter
+        writeTo(LSM6DSL_ADDRESS,LSM6DSL_CTRL3_C,0b01000100);         // Enable Block Data update, increment during multi byte read
 }
 
 void enable_gyroscope()
 {
-  // Enable Gyro
-  writeTo(GYR_ADDRESS, CTRL_REG1_G, 0b00001111); // Normal power mode, all axes enabled
-  writeTo(GYR_ADDRESS, CTRL_REG4_G, 0b00110000); // Continuos update, 2000 dps full scale
+        //initialise the gyroscope
+        writeTo(LSM6DSL_ADDRESS,LSM6DSL_CTRL2_G,0b10011100);         // ODR 3.3 kHz, 2000 dps
 }
 
 void berryIMU_measure()
@@ -73,7 +76,7 @@ void berryIMU_measure()
     //Read the measurements from the sensors, combine and convert to correct values
   //The values are expressed in 2’s complement (MSB for the sign and then 15 bits for the value) 
   //Start at OUT_X_L_A and read 6 bytes.
-  readFrom(ACC_ADDRESS, 0x80 | OUT_X_L_A, 6, buff);
+  readFrom(LSM6DSL_ADDRESS, LSM6DSL_OUT_X_L_XL, 6, buff);
   accRaw[0] = (int)(buff[0] | (buff[1] << 8));   
   accRaw[1] = (int)(buff[2] | (buff[3] << 8));
   accRaw[2] = (int)(buff[4] | (buff[5] << 8));
@@ -81,7 +84,7 @@ void berryIMU_measure()
   if (accRaw[1] >= 32768) accRaw[1] = accRaw[1] - 65536;
   if (accRaw[2] >= 32768) accRaw[2] = accRaw[2] - 65536;
 
-  readFrom(GYR_ADDRESS, 0x80 | OUT_X_L_G, 6, buff);
+  readFrom(LSM6DSL_ADDRESS, LSM6DSL_OUT_X_L_G, 6, buff);
   gyrRaw[0] = (int)(buff[0] | (buff[1] << 8));   
   gyrRaw[1] = (int)(buff[2] | (buff[3] << 8));
   gyrRaw[2] = (int)(buff[4] | (buff[5] << 8));
