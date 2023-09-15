@@ -3,6 +3,7 @@
 #include "Wire.h"
 #include "LSM6DSL.h"
 #include "LIS3MDL.h"
+#include "BLE.h"
 
 #define DT  0.02          // Loop time E.g 0.02 = 20 milliseconds
 #define AA  0.97         // complementary filter constant
@@ -204,6 +205,7 @@ void setup() {
   enable_acclerometer();
   enable_magnetometer();
   enable_gyroscope();
+  setup_ble_master();
 
 }
 
@@ -213,6 +215,7 @@ void loop() {
   berryIMU_measure();
   //delay(3000);
   dbg_print();
+  sendData(CFangleY);
   
 
 }

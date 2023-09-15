@@ -1,4 +1,5 @@
-#include <SoftwareSerial.h>
+#include "BLE.h"
+
 //http://phillipecantin.blogspot.com/2014/08/hc-05-bluetooth-link-with-zero-code.html
 
 SoftwareSerial mySerial(2, 1); // RX, TX
@@ -40,19 +41,22 @@ void readSerial()
 {
   char reply[50];
   int i = 0;
-  while (mySerial.available()) {
+  while (mySerial.available()) 
+  {
     reply[i] = mySerial.read();
     i += 1;
   }
   //end the string
   reply[i] = '\0';
-  if(strlen(reply) > 0){
+  if(strlen(reply) > 0)
+  {
     Serial.println(reply);
     Serial.println("We have just read some data");
   }
 }
 
-void setup_ble_master() {
+void setup_ble_master() 
+{
   // put your setup code here, to run once:
   mySerial.begin(9600);
   Serial.begin(9600);
@@ -64,7 +68,8 @@ void setup_ble_master() {
   sendCommand("AT+NAMEpayload");
 }
 
-void setup_ble_slave() {
+void setup_ble_slave() 
+{
   // put your setup code here, to run once:
   mySerial.begin(9600);
   Serial.begin(9600);
@@ -84,19 +89,4 @@ void sendData(float data)
   writeToBLE(strFloat);
 }
 
-void setup() {
-  // put your setup code here, to run once:
-  mySerial.begin(9600);
-  Serial.begin(9600);
 
-  sendCommand("AT");
-  sendCommand("AT+ROLE0");
-  sendCommand("AT+UUID0xFFE0");
-  sendCommand("AT+CHAR0xFFE1");
-  sendCommand("AT+NAMEbluino");
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}
