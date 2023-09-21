@@ -16,7 +16,11 @@
 
 #include <SD.h>
 #include <SPI.h>
+#define TEST_MODE 1
 
+uint8_t counter = 0;
+long long sample = 0;
+uint8_t cold_boot = 0;
 // On the Ethernet Shield, CS is pin 4. Note that even if it's not
 // used as the CS pin, the hardware CS pin (10 on most Arduino boards,
 // 53 on the Mega) must be left as an output or the SD library
@@ -32,7 +36,8 @@
 // Teensy 2.0: pin 0
 // Teensy++ 2.0: pin 20
 const int chipSelect = BUILTIN_SDCARD;
-void setup_SD(){
+void setup_SD()
+{
   //Comment out for integration/////////////////////////////
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -43,6 +48,7 @@ void setup_SD(){
 
   Serial.print("Initializing SD card...");
 
+
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect)) {
     Serial.println("Card failed, or not present");
@@ -51,6 +57,7 @@ void setup_SD(){
     }
   }
   Serial.println("card initialized.");
+  cold_boot = 0;
 }
 
 void setup()
@@ -61,30 +68,94 @@ void setup()
 
 void writeToSD()
 {
-  // make a string for assembling the data to log:
   String dataString = "Test ";
+  
+  int randomNum = random(-300, 300);
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+  if (TEST_MODE == 1)
+  {
+    if (cold_boot == 0)
+    {
+      dataString = "Test Start ";
+      cold_boot = 1;
+        // if the file is available, write to it:
+      if (dataFile) 
+      {
+        dataFile.println(dataString);
+        dataFile.close();
+        // print to the serial port too:
+        Serial.println(dataString);
+      } 
+      else 
+      {
+        // if the file isn't open, pop up an error:
+        Serial.println("error opening datalog.txt");
+      }
+      delay(100); // run at a reasonable not-too-fast speed
+    }
+    else 
+    {
+      if(dataFile)
+      {
+        dataFile.print("Sample: ");
+        dataFile.print(String(sample));
+        dataFile.print(" ");
+        dataFile.print("Angle Velocity: ");
+        dataFile.print(String(randomNum));
+        dataFile.print(" ");
+        dataFile.print("Angle: ");
+        randomNum = randomNum + 10 - 6 *2 / 3;
+        dataFile.print(String(randomNum));
+        dataFile.print(" ");
+        dataFile.println(" ");
+        dataFile.close();
+        Serial.print("Sample: ");
+        Serial.print(String(sample));
+        Serial.print("Angle Velocity: ");
+        Serial.print(String(randomNum));
+        Serial.print("Angle: ");
+        Serial.print(String(randomNum + 10 - 6 * 2/ 3));
+        Serial.println(" ");
+        sample++;
+      }
+      else 
+      {
+        // if the file isn't open, pop up an error:
+        Serial.println("error opening datalog.txt");
+      }
+      delay(100); // run at a reasonable not-too-fast speed
+      
+    }
+  }
+  // make a string for assembling the data to log:
+  
   //int sensor = analogRead(analogPin);
   //dataString += String(sensor);
 
-  // open the file.
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
-  // if the file is available, write to it:
-  if (dataFile) {
-    dataFile.println(dataString);
-    dataFile.close();
-    // print to the serial port too:
-    Serial.println(dataString);
-  } else {
-    // if the file isn't open, pop up an error:
-    Serial.println("error opening datalog.txt");
-  }
-  delay(100); // run at a reasonable not-too-fast speed
   
+  else 
+  {
+    if (dataFile) 
+    {
+      dataString = "TEST";
+
+      dataFile.print(dataString);
+      dataFile.close();
+      // print to the serial port too:
+      Serial.println(dataString);
+    } 
+    else 
+    {
+      // if the file isn't open, pop up an error:
+      Serial.println("error opening datalog.txt");
+    }
+    delay(100); // run at a reasonable not-too-fast speed
+  } 
 }
 void loop()
 {
-  uint8_t counter = 0;
+  
   if (counter < 1)
   {
     writeToSD();

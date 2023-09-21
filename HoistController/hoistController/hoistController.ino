@@ -46,7 +46,7 @@ void config_LOWER_HOIST_PIN()
 }
 void set_pwm_speed(uint8_t duty_cycle)
 {
-  analogWrite(SPEED_HOIST_PIN, duty_cycle / 100 * 255);
+  analogWrite(SPEED_HOIST_PIN, (float) duty_cycle / 100 * 255);
 }
 
 void set_raise_mode()
