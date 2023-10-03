@@ -5,6 +5,7 @@
 #include "LIS3MDL.h"
 #include "BLE.h"
 
+#define BAUDRATE 115200
 #define DT  0.02          // Loop time E.g 0.02 = 20 milliseconds
 #define AA  0.97         // complementary filter constant
 #define G_GAIN 0.070    // [deg/s/LSB]
@@ -25,7 +26,7 @@ float CFangleX = 0.0;
 float CFangleY = 0.0;
 float heading = 0.0;
 
-
+struct Packet pkt_payload;
 
 unsigned long startTime;
 
@@ -56,7 +57,7 @@ void setup_berryIMU()
 {
   Wire.begin(); //Init i2c
   Wire.setClock(400000); //Change i2c bus speed to 400k Hz
-  Serial.begin(115200); //set baudrate to 115200
+  Serial.begin(BAUDRATE); //set baudrate to 115200
 }
 
 void enable_acclerometer()
@@ -152,6 +153,9 @@ void berryIMU_measure()
         }
   Serial.print( millis()- startTime);
 
+  pkt_payload.CFangleX_data = CFangleX;
+  pkt_payload.gyroXvel_data = rate_gyr_x;
+
 }
 
 float getAccXangle()
@@ -205,7 +209,7 @@ void setup() {
   enable_acclerometer();
   enable_magnetometer();
   enable_gyroscope();
-  setup_ble_master();
+  //setup_ble_master();
 
 }
 
@@ -215,7 +219,8 @@ void loop() {
   berryIMU_measure();
   //delay(3000);
   dbg_print();
-  sendData(CFangleY);
+  ble_transmit(pkt_payload);
+  
   
 
 }

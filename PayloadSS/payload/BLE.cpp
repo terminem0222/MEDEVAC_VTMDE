@@ -1,92 +1,63 @@
 #include "BLE.h"
 
-//http://phillipecantin.blogspot.com/2014/08/hc-05-bluetooth-link-with-zero-code.html
+//https://www.mrswirlyeyes.com/tutorials/bluetooth_hm_10
 
-SoftwareSerial mySerial(2, 1); // RX, TX
+#ifdef ARDUINO
+SoftwareSerial payloadBTSerial(2, 3); // RX, TX
+#endif
 
-void sendCommand(const char * command) 
+struct Packet pkt_tx;
+struct Packet pkt_rx;
+
+#ifdef PAYLOAD
+void ble_transmit(struct Packet toSend)
 {
-  Serial.print("Command send :");
-  Serial.println(command);
-  mySerial.println(command);
-  //wait some time
-  delay(100);
+  pkt_tx.CFangleX_data = toSend.CFangleX_data;
+  pkt_tx.gyroXvel_data = toSend.gyroXvel_data;
 
-  char reply[100];
-  int i = 0;
-  while (mySerial.available()) {
-    reply[i] = mySerial.read();
-    i += 1;
-  }
-  //end the string
-  reply[i] = '\0';
-  Serial.print(reply);
-  Serial.println("Reply end");                 
-  delay(50);
+  payloadBTSerial.write((byte *) & pkt_tx,sizeof(Packet));
+  Serial.print("TX: ");
+  Serial.print(pkt_tx.CFangleX_data);
+  Serial.print(" ");
+  Serial.println(pkt_tx.gyroXvel_data);
 }
+#endif
 
-void writeSerialToBLE(int value) 
+#ifdef MAINPROC
+void ble_receive()
 {
-  mySerial.println(value);
-}
-
-void writeToBLE(const char *value) 
-{
-  Serial.print("Writing :");
-  Serial.println(value);
-  mySerial.write(value, strlen(value));
-}
-
-void readSerial()
-{
-  char reply[50];
-  int i = 0;
-  while (mySerial.available()) 
+// Counting variable to fix a lost connection
+  static byte count = 10;
+  
+  // Check the software serial buffer for data to read
+  if(Serial1.available() >= sizeof(Packet)) 
   {
-    reply[i] = mySerial.read();
-    i += 1;
-  }
-  //end the string
-  reply[i] = '\0';
-  if(strlen(reply) > 0)
+    // Read in the appropriate number of bytes to fit our Packet
+    Serial1.readBytes((byte *) & pkt_rx,sizeof(Packet));
+
+    // Print the Packet contents
+    Serial.print("RX: ");
+    Serial.print(pkt_rx.CFangleX_data);
+    Serial.print(" ");
+    Serial.println(pkt_rx.gyroXvel_data);
+
+    // Flush the serial buffer
+    while(Serial1.available() > 0)
+      Serial1.read();   
+    
+    // Transmit data via bluetooth
+    //ble_transmit();
+  } 
+  else 
   {
-    Serial.println(reply);
-    Serial.println("We have just read some data");
+    // If a disconnect happens, start transmitting
+    if(count >= 10) 
+    {
+      count = 0;  // Reset counter
+      // Transmit to revive process
+      //ble_transmit();
+    }
+    count++;
   }
 }
-
-void setup_ble_master() 
-{
-  // put your setup code here, to run once:
-  mySerial.begin(9600);
-  Serial.begin(9600);
-
-  sendCommand("AT");
-  sendCommand("AT+ROLE1");
-  sendCommand("AT+UUID0xFFE0");
-  sendCommand("AT+CHAR0xFFE1");
-  sendCommand("AT+NAMEpayload");
-}
-
-void setup_ble_slave() 
-{
-  // put your setup code here, to run once:
-  mySerial.begin(9600);
-  Serial.begin(9600);
-
-  sendCommand("AT");
-  sendCommand("AT+ROLE0");
-  sendCommand("AT+UUID0xFFE0");
-  sendCommand("AT+CHAR0xFFE1");
-  sendCommand("AT+NAMEreceiver");
-}
-
-void sendData(float data)
-{
-  float temp = data;
-  char strFloat[20];
-  dtostrf(temp, 2, 2, strFloat);
-  writeToBLE(strFloat);
-}
-
-
+#endif
