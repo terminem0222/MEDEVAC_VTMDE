@@ -14,14 +14,17 @@ struct Packet
   float gyroXvel_data;
 };
 
+
+
 #ifdef PAYLOAD
 void ble_transmit(struct Packet toSend);
 #endif
 
 #ifdef MAINPROC
-void ble_receive();
+void bleMain_setup();
+void ble_receive(struct Packet pkt_mainrx);
 #endif
-void ble_setup();
+
 
 
 

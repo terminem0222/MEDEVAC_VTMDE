@@ -1,18 +1,16 @@
-#include "SPI.h"
-#include "Adafruit_GFX.h"
-#include "Adafruit_ILI9341.h"
+#include "LCD_screen.h"
 
-#define TFT_DC 10
-#define TFT_CS 9
+
+
 #define MOSI_PIN 11
 #define SCLK_PIN 13
 
 #define SENSOR_MODE 1
 #define BLE_CON     1
 
-Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+//Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
-void setup_LCD()
+void setup_LCD(Adafruit_ILI9341 tft)
 {
   Serial.println("ILI9341 Init");
   SPI.setMOSI(MOSI_PIN);
@@ -52,7 +50,7 @@ void setup_LCD()
 
 }
 
-void LCD_printStabOn()
+void LCD_printStabOn(Adafruit_ILI9341 tft)
 {
   tft.fillRect(257,60,36,17, ILI9341_BLACK);
   tft.setTextColor(ILI9341_GREEN);
@@ -60,7 +58,7 @@ void LCD_printStabOn()
   tft.println("ON");
 }
 
-void LCD_printStabOff()
+void LCD_printStabOff(Adafruit_ILI9341 tft)
 {
     tft.fillRect(257,60,36,17, ILI9341_BLACK);
     tft.setTextColor(ILI9341_RED);
@@ -68,7 +66,7 @@ void LCD_printStabOff()
     tft.println("OFF");
 }
 
-void LCD_printSensorMode()
+void LCD_printSensorMode(Adafruit_ILI9341 tft)
 {
   if(SENSOR_MODE)
   {
@@ -86,7 +84,7 @@ void LCD_printSensorMode()
   }
 }
 
-void LCD_printBLEstatus()
+void LCD_printBLEstatus(Adafruit_ILI9341 tft)
 {
   if(BLE_CON)
   {
@@ -104,7 +102,7 @@ void LCD_printBLEstatus()
   }
 }
 
-void LCD_printData(float angleX, float angleXvel)
+void LCD_printData(Adafruit_ILI9341 tft, float angleX, float angleXvel)
 {
   //MASK OLD DATA
   tft.fillRect(149,87,100,17, ILI9341_BLACK); //MASK ANGLE

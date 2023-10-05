@@ -1,3 +1,4 @@
+#include "HoistController.h"
 //Controlling the Hoist
 //TEST MACRO:
 #define RAISE_MODE_TEST 1
@@ -66,13 +67,18 @@ void set_lower_mode()
   digitalWrite(LOWER_HOIST_PIN, HIGH);
 }
 
-void stop()
+void stop_all()
 {
   digitalWrite(EN_RELAY_PIN, LOW);
   digitalWrite(LOWER_HOIST_PIN, LOW);
   digitalWrite(RAISE_HOIST_PIN, LOW);
   digitalWrite(LOWERING_RELAY_PIN, LOW);
   digitalWrite(RAISING_RELAY_PIN, LOW);
+  analogWrite(SPEED_HOIST_PIN, 0);
+}
+
+void stop()
+{
   analogWrite(SPEED_HOIST_PIN, 0);
 }
 void config_all_pin()

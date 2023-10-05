@@ -13,14 +13,10 @@
  ** CS - pin 4,  pin 10 on Teensy with audio board
  
  */
+#include "SDfile.h"
 
-#include <SD.h>
-#include <SPI.h>
-#include "BLE.h"
 
-uint8_t counter = 0;
-long long sample = 0;
-uint8_t cold_boot = 0;
+//uint8_t counter = 0;
 // On the Ethernet Shield, CS is pin 4. Note that even if it's not
 // used as the CS pin, the hardware CS pin (10 on most Arduino boards,
 // 53 on the Mega) must be left as an output or the SD library
@@ -48,7 +44,6 @@ void setup_SD()
     }
   }
   Serial.println("card initialized.");
-  cold_boot = 0;
 }
 
 void writeToSD(struct Packet pkt_mainrx, uint8_t bootmode, long long sample)
