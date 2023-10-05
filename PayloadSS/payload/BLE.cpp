@@ -1,7 +1,7 @@
 #include "BLE.h"
 
 //https://www.mrswirlyeyes.com/tutorials/bluetooth_hm_10
-
+#define BLE_BAUDRATE  115200
 #ifdef ARDUINO
 SoftwareSerial payloadBTSerial(2, 3); // RX, TX
 #endif
@@ -10,6 +10,10 @@ struct Packet pkt_tx;
 struct Packet pkt_rx;
 
 #ifdef PAYLOAD
+void blePayload_setup()
+{
+  payloadBTSerial.begin(BLE_BAUDRATE);
+}
 void ble_transmit(struct Packet toSend)
 {
   pkt_tx.CFangleX_data = toSend.CFangleX_data;

@@ -15,6 +15,7 @@ struct Packet
 };
 
 #ifdef PAYLOAD
+void blePayload_setup();
 void ble_transmit(struct Packet toSend);
 #endif
 

@@ -210,7 +210,7 @@ void setup() {
   enable_acclerometer();
   enable_magnetometer();
   enable_gyroscope();
-  //setup_ble_master();
+  blePayload_setup();
 
 }
 
