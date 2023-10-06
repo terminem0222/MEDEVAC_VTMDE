@@ -52,6 +52,7 @@ void setup_LCD(Adafruit_ILI9341 tft)
 
 void LCD_printStabOn(Adafruit_ILI9341 tft)
 {
+  tft.setTextSize(2);
   tft.fillRect(257,60,36,17, ILI9341_BLACK);
   tft.setTextColor(ILI9341_GREEN);
   tft.setCursor(257,60);
@@ -60,6 +61,7 @@ void LCD_printStabOn(Adafruit_ILI9341 tft)
 
 void LCD_printStabOff(Adafruit_ILI9341 tft)
 {
+    tft.setTextSize(2);
     tft.fillRect(257,60,36,17, ILI9341_BLACK);
     tft.setTextColor(ILI9341_RED);
     tft.setCursor(257,60);
@@ -68,6 +70,7 @@ void LCD_printStabOff(Adafruit_ILI9341 tft)
 
 void LCD_printSensorMode(Adafruit_ILI9341 tft)
 {
+  tft.setTextSize(2);
   if(SENSOR_MODE)
   {
     tft.fillRect(149,180,110,17, ILI9341_BLACK);
@@ -86,6 +89,7 @@ void LCD_printSensorMode(Adafruit_ILI9341 tft)
 
 void LCD_printBLEstatus(Adafruit_ILI9341 tft)
 {
+  tft.setTextSize(2);
   if(BLE_CON)
   {
     tft.fillRect(137,210,144,17, ILI9341_BLACK);
@@ -107,7 +111,7 @@ void LCD_printData(Adafruit_ILI9341 tft, float angleX, float angleXvel)
   //MASK OLD DATA
   tft.fillRect(149,87,100,17, ILI9341_BLACK); //MASK ANGLE
   tft.fillRect(197,117,100,17, ILI9341_BLACK); //MASK ANGLE VEL
-
+  tft.fillRect(161,147,100,17, ILI9341_BLACK);
   //Set Text color
   tft.setTextColor(ILI9341_RED);
   //Printing angle
@@ -117,7 +121,7 @@ void LCD_printData(Adafruit_ILI9341 tft, float angleX, float angleXvel)
   tft.println(angleX);
 
   tft.setTextSize(1);
-  tft.setCursor(149+sizeAngle*12+3,87);
+  tft.setCursor(149 + sizeAngle * 12 + 3, 87);
   tft.print("o");
 
   //Printing angle velocity
@@ -127,13 +131,23 @@ void LCD_printData(Adafruit_ILI9341 tft, float angleX, float angleXvel)
   tft.println(angleXvel);
 
   tft.setTextSize(1);
-  tft.setCursor(197+sizeAngleROC*12+3,117);
+  tft.setCursor(197 + sizeAngleROC * 12 + 3, 117);
   tft.print("o");
   tft.setTextSize(2);
-  tft.setCursor(197+sizeAngleROC*12+8,120);
-  tft.print("/sec");    
+  tft.setCursor(197 + sizeAngleROC * 12 + 8, 120);
+  tft.print("/sec");
 
-  delay(5);
+  int cableLength = 255;
+  int sizeCable = String(cableLength).length();
+  tft.setTextSize(2);
+  tft.setCursor(161,150);
+  tft.println(cableLength);
+
+  tft.setTextSize(2);
+  tft.setCursor(161+sizeCable*12+1,150);
+  tft.print("ft");     
+
+  delay(20);
 }
 
 
