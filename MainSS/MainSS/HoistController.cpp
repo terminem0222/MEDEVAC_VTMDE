@@ -9,10 +9,10 @@
 ////////////////////////////////////////////////
 #define EN_RELAY_PIN 15
 #define SPEED_HOIST_PIN 19
-#define LOWERING_RELAY_PIN 13
+#define LOWERING_RELAY_PIN 16
 #define RAISING_RELAY_PIN 14
-#define RAISE_HOIST_PIN 36
-#define LOWER_HOIST_PIN 37
+#define RAISE_HOIST_PIN 37
+#define LOWER_HOIST_PIN 36
 
 void config_SPEED_HOIST_PIN()
 {
