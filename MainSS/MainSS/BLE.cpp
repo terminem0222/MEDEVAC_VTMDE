@@ -1,7 +1,7 @@
 #include "BLE.h"
 
 //https://www.mrswirlyeyes.com/tutorials/bluetooth_hm_10
-#define BLE_BAUDRATE  115200
+#define BLE_BAUDRATE  9600
 #ifdef ARDUINO
 SoftwareSerial payloadBTSerial(2, 3); // RX, TX
 #endif
@@ -26,7 +26,7 @@ void ble_transmit(struct Packet toSend)
 #ifdef MAINPROC
 void bleMain_setup()
 {
-  Serial1.begin(BLE_BAUDRATE);
+  Serial2.begin(BLE_BAUDRATE);
 }
 void ble_receive(struct Packet pkt_mainrx)
 {
@@ -34,10 +34,10 @@ void ble_receive(struct Packet pkt_mainrx)
   static byte count = 10;
   
   // Check the software serial buffer for data to read
-  if((uint) Serial1.available() >= sizeof(Packet)) 
+  if((uint) Serial2.available() >= sizeof(Packet)) 
   {
     // Read in the appropriate number of bytes to fit our Packet
-    Serial1.readBytes((byte *) & pkt_rx,sizeof(Packet));
+    Serial2.readBytes((byte *) & pkt_rx,sizeof(Packet));
 
     // Print the Packet contents
     Serial.print("RX: ");
