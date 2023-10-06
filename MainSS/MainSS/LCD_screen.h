@@ -4,6 +4,7 @@
 
 #define TFT_DC 10
 #define TFT_CS 9
+#define TFT_RST -1
 
 void setup_LCD(Adafruit_ILI9341 tft);
 void LCD_printStabOn(Adafruit_ILI9341 tft);

@@ -26,7 +26,7 @@ void ble_transmit(struct Packet toSend)
 #ifdef MAINPROC
 void bleMain_setup()
 {
-  Serial2.begin(BLE_BAUDRATE);
+  Serial6.begin(BLE_BAUDRATE);
 }
 void ble_receive(struct Packet pkt_mainrx)
 {
@@ -34,10 +34,10 @@ void ble_receive(struct Packet pkt_mainrx)
   static byte count = 10;
   
   // Check the software serial buffer for data to read
-  if((uint) Serial2.available() >= sizeof(Packet)) 
+  if((uint) Serial6.available() >= sizeof(Packet)) 
   {
     // Read in the appropriate number of bytes to fit our Packet
-    Serial2.readBytes((byte *) & pkt_rx,sizeof(Packet));
+    Serial6.readBytes((byte *) & pkt_rx,sizeof(Packet));
 
     // Print the Packet contents
     Serial.print("RX: ");
@@ -48,8 +48,8 @@ void ble_receive(struct Packet pkt_mainrx)
     pkt_mainrx.gyroXvel_data = pkt_rx.gyroXvel_data;
     
     // Flush the serial buffer
-    while(Serial1.available() > 0)
-      Serial1.read();   
+    while(Serial6.available() > 0)
+      Serial6.read();   
     
     // Transmit data via bluetooth
     //ble_transmit();
