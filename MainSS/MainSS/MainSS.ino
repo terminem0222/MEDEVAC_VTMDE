@@ -85,7 +85,8 @@ void loop()
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       setup_hoistController();
       //set_raise_mode();
-      set_pwm_speed(75);
+      set_lower_mode();
+      set_pwm_speed(25);
       ble_receive(pkt_mainrx);
       writeToSD(pkt_mainrx, bootmode, sample);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
