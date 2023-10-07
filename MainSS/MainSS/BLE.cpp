@@ -28,7 +28,7 @@ void bleMain_setup()
 {
   Serial6.begin(BLE_BAUDRATE);
 }
-void ble_receive(struct Packet pkt_mainrx)
+struct Packet ble_receive()
 {
 // Counting variable to fix a lost connection
   static byte count = 10;
@@ -44,9 +44,12 @@ void ble_receive(struct Packet pkt_mainrx)
     Serial.print(pkt_rx.CFangleX_data);
     Serial.print(" ");
     Serial.println(pkt_rx.gyroXvel_data);
-    pkt_mainrx.CFangleX_data = pkt_rx.CFangleX_data;
-    pkt_mainrx.gyroXvel_data = pkt_rx.gyroXvel_data;
+    Serial.print("main_rx: ");
     
+
+    //pkt_mainrx.CFangleX_data = pkt_rx.CFangleX_data;
+    //pkt_mainrx.gyroXvel_data = pkt_rx.gyroXvel_data;
+    //Serial.println(pkt_mainrx.CFangleX_data);
     // Flush the serial buffer
     while(Serial6.available() > 0)
       Serial6.read();   
@@ -65,5 +68,6 @@ void ble_receive(struct Packet pkt_mainrx)
     }
     count++;
   }
+  return pkt_rx;
 }
 #endif

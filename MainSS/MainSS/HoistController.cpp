@@ -33,6 +33,7 @@ void config_RAISING_RELAY_PIN()
 void config_EN_RELAY_PIN()
 {
   pinMode(EN_RELAY_PIN, OUTPUT);
+  digitalWrite(EN_RELAY_PIN, HIGH);
   
 }
 
@@ -47,7 +48,7 @@ void config_LOWER_HOIST_PIN()
 }
 void set_pwm_speed(uint8_t duty_cycle)
 {
-  digitalWrite(EN_RELAY_PIN, HIGH);
+  //digitalWrite(EN_RELAY_PIN, HIGH);
   analogWrite(SPEED_HOIST_PIN, (float) duty_cycle / 100 * 255);
 }
 
@@ -66,6 +67,11 @@ void set_lower_mode()
   digitalWrite(LOWERING_RELAY_PIN, HIGH);
   digitalWrite(RAISE_HOIST_PIN, LOW);
   digitalWrite(LOWER_HOIST_PIN, HIGH);
+}
+void off()
+{
+  digitalWrite(RAISING_RELAY_PIN, LOW);
+  digitalWrite(LOWERING_RELAY_PIN, LOW);
 }
 
 void stop_all()

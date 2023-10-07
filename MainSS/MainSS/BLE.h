@@ -22,7 +22,7 @@ void ble_transmit(struct Packet toSend);
 
 #ifdef MAINPROC
 void bleMain_setup();
-void ble_receive(struct Packet pkt_mainrx);
+struct Packet ble_receive();
 #endif
 
 

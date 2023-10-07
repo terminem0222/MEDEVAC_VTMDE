@@ -28,6 +28,31 @@ void lanz_algo()
   //TODO: Waiting for ryans
 } //END LANZ_ALGO()
 
+void test_proc()
+{
+  Serial.println("Test Proc!");
+  Serial.println(pkt_mainrx.CFangleX_data);
+  if (pkt_mainrx.CFangleX_data > 45.0)
+  {
+      setup_hoistController();
+      set_raise_mode();
+      set_pwm_speed(20);
+      Serial.println("RAISING!");
+
+  }
+  else if (pkt_mainrx.CFangleX_data < -45.0)
+  {
+      setup_hoistController();
+      set_lower_mode();
+      set_pwm_speed(20);
+      Serial.println("LOWERING!");
+  }
+  else
+  {
+    off();
+  }
+}
+
 void setup() 
 {
   // put your setup code here, to run once:
@@ -41,7 +66,6 @@ void setup()
   pkt_mainrx.CFangleX_data = 0;
   pkt_mainrx.gyroXvel_data = 0;
   Serial.println("SETUP COMPLETED!");
-
 } //END VOID SETUP()
 
 void loop() 
@@ -58,19 +82,31 @@ void loop()
   //if(algoSwitch.isPressed())
   {
     Serial.println("SWITCH IS ON");
+    setup_hoistController();
     writeToSD(pkt_mainrx, bootmode, sample);
-    ble_receive(pkt_mainrx);
+    pkt_mainrx = ble_receive();
     writeToSD(pkt_mainrx, bootmode, sample);
     Serial.println("Checking Test Mode");
     if(TEST_MODE == ALGO)
     {
       //ALGO
+      Serial.println("ALGO MODE");
+      //LCD_printStabOn(tft);
+      pkt_mainrx = ble_receive();
+      Serial.println("Receiving BLE");
+      writeToSD(pkt_mainrx, bootmode, sample);
+      //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
+      test_proc();
+      pkt_mainrx = ble_receive();
+      writeToSD(pkt_mainrx, bootmode, sample);
+      //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
+      test_proc();
     }
     else if (TEST_MODE == NONE)
     {
       //Speed 0, only read and log data
       stop();
-      ble_receive(pkt_mainrx);
+      pkt_mainrx = ble_receive();
       writeToSD(pkt_mainrx, bootmode, sample);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
     }
@@ -79,31 +115,31 @@ void loop()
       LCD_printStabOff(tft);
 
       //Pulling up speed 25% and log data
-      ble_receive(pkt_mainrx);
+      pkt_mainrx = ble_receive();
       Serial.println("Receiving BLE");
       writeToSD(pkt_mainrx, bootmode, sample);
-      LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
+      //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       setup_hoistController();
       //set_raise_mode();
       set_lower_mode();
-      set_pwm_speed(25);
-      ble_receive(pkt_mainrx);
+      set_pwm_speed(50);
+      Serial.println("outputting 50%");
+      pkt_mainrx = ble_receive();
       writeToSD(pkt_mainrx, bootmode, sample);
-      LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
+      //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
 
     }
     else if (TEST_MODE == LOWERING)
     {
       //Lower the hoist speed 25% and log data
       LCD_printStabOff(tft);
-
       //Pulling up speed 25% and log data
-      ble_receive(pkt_mainrx);
+      pkt_mainrx = ble_receive();
       writeToSD(pkt_mainrx, bootmode, sample);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       set_lower_mode();
       set_pwm_speed(25);
-      ble_receive(pkt_mainrx);
+      pkt_mainrx = ble_receive();
       writeToSD(pkt_mainrx, bootmode, sample);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);      
     }
@@ -122,7 +158,7 @@ void loop()
     //Turning hoist controller off
     stop_all();
     LCD_printStabOff(tft);
-    ble_receive(pkt_mainrx);
+    pkt_mainrx = ble_receive();
     LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
   } //END MANUAL MODE
 

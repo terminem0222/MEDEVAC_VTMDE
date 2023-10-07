@@ -147,7 +147,7 @@ void LCD_printData(Adafruit_ILI9341 tft, float angleX, float angleXvel)
   tft.setCursor(161+sizeCable*12+1,150);
   tft.print("ft");     
 
-  delay(5);
+  //delay(5);
 }
 
 

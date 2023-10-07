@@ -11,5 +11,6 @@ void set_raise_mode();
 void set_lower_mode();
 void stop_all();
 void stop();
+void off();
 void config_all_pin();
 void setup_hoistController();
