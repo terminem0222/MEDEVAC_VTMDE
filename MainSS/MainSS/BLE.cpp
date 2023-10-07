@@ -1,7 +1,7 @@
 #include "BLE.h"
 
 //https://www.mrswirlyeyes.com/tutorials/bluetooth_hm_10
-#define BLE_BAUDRATE  9600
+#define BLE_BAUDRATE  115200
 #ifdef ARDUINO
 SoftwareSerial payloadBTSerial(2, 3); // RX, TX
 #endif
