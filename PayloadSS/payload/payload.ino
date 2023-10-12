@@ -85,7 +85,7 @@ void enable_gyroscope()
 void berryIMU_measure()
 {
   startTime = millis();
-    //Read the measurements from the sensors, combine and convert to correct values
+  //Read the measurements from the sensors, combine and convert to correct values
   //The values are expressed in 2’s complement (MSB for the sign and then 15 bits for the value) 
   //Start at OUT_X_L_A and read 6 bytes.
   readFrom(LSM6DSL_ADDRESS, LSM6DSL_OUT_X_L_XL, 6, buff);
@@ -126,9 +126,9 @@ void berryIMU_measure()
 
 
   //If IMU is up the correct way, use these lines
-        AccXangle -= (float)180.0;
+  AccXangle -= (float)180.0;
   if (AccYangle > 90)
-          AccYangle -= (float)270;
+    AccYangle -= (float)270;
   else
     AccYangle += (float)90;
 
@@ -136,7 +136,7 @@ void berryIMU_measure()
   CFangleX=AA*(CFangleX+rate_gyr_x*DT) +(1 - AA) * AccXangle;
   CFangleY=AA*(CFangleY+rate_gyr_y*DT) +(1 - AA) * AccYangle;
 
-    //Compute heading  
+  //Compute heading  
   heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
   
   //Convert heading to 0 - 360
@@ -146,16 +146,15 @@ void berryIMU_measure()
   }
             
 
-    //Each loop should be at least DT
+  //Each loop should be at least DT
   while(millis() - startTime < (DT*1000))
-        {
-            delay(1);
-        }
+  {
+    delay(1);
+  }
   Serial.print( millis()- startTime);
 
   pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
-
 }
 
 float getAccXangle()
@@ -167,7 +166,6 @@ float getAccYangle()
 {
   return AccYangle;
 }
-
 
 float getGyroXangle()
 {
@@ -204,24 +202,22 @@ void dbg_print()
   Serial.println(heading);
 }
 
-void setup() {
+void setup() 
+{
   // put your setup code here, to run once:
   setup_berryIMU();
   enable_acclerometer();
   enable_magnetometer();
   enable_gyroscope();
   blePayload_setup();
-
 }
 
-void loop() {
+void loop() 
+{
   // put your main code here, to run repeatedly:
   Serial.print("Starting \n");
   berryIMU_measure();
   //delay(3000);
   dbg_print();
   ble_transmit(pkt_payload);
-  
-  
-
 }
