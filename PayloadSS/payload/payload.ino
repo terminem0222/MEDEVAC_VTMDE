@@ -22,8 +22,10 @@ float gyroYangle = 0.0;
 float gyroZangle = 0.0;
 float AccYangle = 0.0;
 float AccXangle = 0.0;
+float AccZangle = 0.0;
 float CFangleX = 0.0;
 float CFangleY = 0.0;
+float CFangleZ = 0.0;
 float heading = 0.0;
 
 struct Packet pkt_payload;
@@ -123,9 +125,10 @@ void berryIMU_measure()
     //Convert Accelerometer values to degrees
   AccXangle = (float) (atan2(accRaw[1],accRaw[2])+M_PI)*RAD_TO_DEG;
   AccYangle = (float) (atan2(accRaw[2],accRaw[0])+M_PI)*RAD_TO_DEG;
-
+  AccZangle = (float) (asin(accRaw[2] / (sqrt(pow(accRaw[0], 2) + pow(accRaw[1], 2) + pow(accRaw[2], 2)) ))) * RAD_TO_DEG;
 
   //If IMU is up the correct way, use these lines
+  AccZangle -= (float) 90.0;
   AccXangle -= (float)180.0;
   if (AccYangle > 90)
     AccYangle -= (float)270;
@@ -135,6 +138,8 @@ void berryIMU_measure()
   //Complementary filter used to combine the accelerometer and gyro values.
   CFangleX=AA*(CFangleX+rate_gyr_x*DT) +(1 - AA) * AccXangle;
   CFangleY=AA*(CFangleY+rate_gyr_y*DT) +(1 - AA) * AccYangle;
+  CFangleZ = (AA*(CFangleZ+rate_gyr_z*DT) +(1 - AA) * AccZangle);
+  //CFangleZ += (float) 2.0;
 
   //Compute heading  
   heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
@@ -155,6 +160,8 @@ void berryIMU_measure()
 
   pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
+  pkt_payload.CFangleZ_data = CFangleZ;
+  pkt_payload.gyroZvel_data = rate_gyr_z;
 }
 
 float getAccXangle()
@@ -188,6 +195,8 @@ void dbg_print()
   Serial.print(AccXangle);
   Serial.print("\t#  AccY\t");
   Serial.print(AccYangle);
+  Serial.print("\t#  AccZ\t");
+  Serial.print(AccZangle);
   Serial.print("\t#  GyrX\t");
   Serial.print(gyroXangle);
   Serial.print("\t#  GyrY\t");
@@ -198,6 +207,8 @@ void dbg_print()
   Serial.print(CFangleX);
   Serial.print("\t# CFangleY\t");
   Serial.print(CFangleY);
+  Serial.print("\t# CFangleZ\t");
+  Serial.print(CFangleZ);  
   Serial.print("\t# Heading\t ");
   Serial.println(heading);
 }

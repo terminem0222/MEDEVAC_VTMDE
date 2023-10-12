@@ -28,6 +28,7 @@ void bleMain_setup()
 {
   Serial6.begin(BLE_BAUDRATE);
 }
+
 struct Packet ble_receive()
 {
 // Counting variable to fix a lost connection

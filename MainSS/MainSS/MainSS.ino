@@ -40,8 +40,8 @@ void test_proc()
   dbg_print();
   Serial.println("Test Proc!");
   pkt_mainrx = ble_receive();
-  Serial.println(pkt_mainrx.CFangleX_data);
-  if ((pkt_mainrx.CFangleX_data > 10.0) || (pkt_mainrx.CFangleX_data < -10.0))
+  Serial.println(pkt_mainrx.CFangleZ_data);
+  if ((pkt_mainrx.CFangleZ_data > 10.0) || (pkt_mainrx.CFangleZ_data < -10.0))
   {
     setup_hoistController();
     set_raise_mode();
@@ -49,7 +49,7 @@ void test_proc()
     Serial.println("RAISING!");
 
   }
-  else if ((pkt_mainrx.CFangleX_data > -2.0) && (pkt_mainrx.CFangleX_data < 2.0))
+  else if ((pkt_mainrx.CFangleZ_data > -2.0) && (pkt_mainrx.CFangleZ_data < 2.0))
   {
     setup_hoistController();
     set_lower_mode();
@@ -68,8 +68,8 @@ void test_proc2()
   dbg_print();
   Serial.println("Test Proc 2!");
   pkt_mainrx = ble_receive();
-  Serial.println(pkt_mainrx.CFangleX_data);
-  if ((pkt_mainrx.CFangleX_data > -2.0) && (pkt_mainrx.CFangleX_data < 2.0))
+  Serial.println(pkt_mainrx.CFangleZ_data);
+  if ((pkt_mainrx.CFangleZ_data > -2.0) && (pkt_mainrx.CFangleZ_data < 2.0))
   {
     setup_hoistController();
     //set_lower_mode();
@@ -77,7 +77,7 @@ void test_proc2()
     set_pwm_speed(5);
     Serial.println("DOWN!");
   }
-  else if ((pkt_mainrx.gyroXvel_data > -12.0) && (pkt_mainrx.gyroXvel_data < 12.0))
+  else if ((pkt_mainrx.gyroZvel_data > -12.0) && (pkt_mainrx.gyroZvel_data < 12.0))
   {
     setup_hoistController();
     set_raise_mode();
@@ -96,9 +96,9 @@ void test_proc2()
 void dbg_print()
 {
   Serial.print("Main RX: ");
-  Serial.print(pkt_mainrx.CFangleX_data);
+  Serial.print(pkt_mainrx.CFangleZ_data);
   Serial.print(" ");
-  Serial.println(pkt_mainrx.gyroXvel_data);
+  Serial.println(pkt_mainrx.gyroZvel_data);
 }
 
 void setup() 
@@ -111,8 +111,10 @@ void setup()
   bleMain_setup();
   setup_SD();
   setup_LCD(tft);
-  pkt_mainrx.CFangleX_data = 0;
-  pkt_mainrx.gyroXvel_data = 0;
+  pkt_mainrx.CFangleX_data = 0.0;
+  pkt_mainrx.gyroXvel_data = 0.0;
+  pkt_mainrx.CFangleZ_data = 0.0;
+  pkt_mainrx.gyroZvel_data = 0.0;
   Serial.println("SETUP COMPLETED!");
 } //END VOID SETUP()
 
