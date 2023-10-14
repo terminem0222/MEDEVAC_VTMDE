@@ -54,7 +54,7 @@ void set_pwm_speed(uint8_t duty_cycle)
 
 void set_raise_mode()
 {
-  digitalWrite(LOWERING_RELAY_PIN, LOW);
+  digitalWrite(LOWERING_RELAY_PIN, HIGH);
   digitalWrite(RAISING_RELAY_PIN, HIGH);
   digitalWrite(LOWER_HOIST_PIN, LOW);
   digitalWrite(RAISE_HOIST_PIN, HIGH);
@@ -63,7 +63,7 @@ void set_raise_mode()
 void set_lower_mode()
 {
   
-  digitalWrite(RAISING_RELAY_PIN, LOW);
+  digitalWrite(RAISING_RELAY_PIN, HIGH);
   digitalWrite(LOWERING_RELAY_PIN, HIGH);
   digitalWrite(RAISE_HOIST_PIN, LOW);
   digitalWrite(LOWER_HOIST_PIN, HIGH);
