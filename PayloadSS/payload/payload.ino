@@ -10,6 +10,14 @@
 #define AA  0.97         // complementary filter constant
 #define G_GAIN 0.070    // [deg/s/LSB]
 
+/* Gyro calibration */
+#define magXmax 1893
+#define magYmax 1023
+#define magZmax 1050
+#define magXmin -1407
+#define magYmin -3101
+#define magZmin -2174
+
 byte buff[6];
 int accRaw[3];
 int magRaw[3];
@@ -103,7 +111,10 @@ void berryIMU_measure()
   magRaw[0] = (int)(buff[0] | (buff[1] << 8));   
   magRaw[1] = (int)(buff[2] | (buff[3] << 8));
   magRaw[2] = (int)(buff[4] | (buff[5] << 8));
-
+  magRaw[0] -= (magXmin + magXmax) /2 ;
+  magRaw[1] -= (magYmin + magYmax) /2 ;
+  magRaw[2] -= (magZmin + magZmax) /2 ;
+  
   readFrom(LSM6DSL_ADDRESS, LSM6DSL_OUT_X_L_G, 6, buff);
   gyrRaw[0] = (int)(buff[0] | (buff[1] << 8));   
   gyrRaw[1] = (int)(buff[2] | (buff[3] << 8));
