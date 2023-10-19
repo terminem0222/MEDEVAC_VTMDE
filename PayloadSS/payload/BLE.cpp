@@ -18,19 +18,17 @@ void ble_transmit(struct Packet toSend)
 {
   pkt_tx.CFangleX_data = toSend.CFangleX_data;
   pkt_tx.gyroXvel_data = toSend.gyroXvel_data;
-  pkt_tx.CFangleZ_data = toSend.CFangleZ_data;
-  pkt_tx.gyroZvel_data = toSend.gyroZvel_data;
-  pkt_tx.time_stamp = toSend.time_stamp;
+  pkt_tx.CFangle_data = toSend.CFangle_data;
+  pkt_tx.gyrovel_data = toSend.gyrovel_data;
 
   payloadBTSerial.write((byte *) & pkt_tx,sizeof(Packet));
   Serial.print("TX: ");
-  Serial.print(pkt_tx.CFangleX_data);
+  //Serial.print(" ");
+  //Serial.print(pkt_tx.gyroXvel_data);
   Serial.print(" ");
-  Serial.print(pkt_tx.gyroXvel_data);
+  Serial.print(pkt_tx.CFangle_data);
   Serial.print(" ");
-  Serial.print(pkt_tx.CFangleZ_data);
-  Serial.print(" ");
-  Serial.println(pkt_tx.gyroZvel_data);
+  Serial.println(pkt_tx.gyrovel_data);
 }
 #endif
 

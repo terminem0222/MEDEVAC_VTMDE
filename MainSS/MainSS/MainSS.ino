@@ -25,7 +25,8 @@
 //Global Variables:
 uint8_t bootmode = 0;
 long long sample = 0;
-float elapsed_time = 0.0;
+double elapsed_time = 0.0;
+long startTime = 0;
 
 struct Packet pkt_mainrx;
 ezButton algoSwitch(ALGO_SWITCH);
@@ -42,8 +43,8 @@ void test_proc()
   dbg_print();
   Serial.println("Test Proc!");
   pkt_mainrx = ble_receive();
-  Serial.println(pkt_mainrx.CFangleZ_data);
-  if ((pkt_mainrx.CFangleZ_data > 10.0) || (pkt_mainrx.CFangleZ_data < -10.0))
+  Serial.println(pkt_mainrx.CFangle_data);
+  if ((pkt_mainrx.CFangle_data > 10.0) || (pkt_mainrx.CFangle_data < -10.0))
   {
     setup_hoistController();
     set_raise_mode();
@@ -51,7 +52,7 @@ void test_proc()
     Serial.println("RAISING!");
 
   }
-  else if ((pkt_mainrx.CFangleZ_data > -2.0) && (pkt_mainrx.CFangleZ_data < 2.0))
+  else if ((pkt_mainrx.CFangle_data > -2.0) && (pkt_mainrx.CFangle_data < 2.0))
   {
     setup_hoistController();
     set_lower_mode();
@@ -70,8 +71,8 @@ void test_proc2()
   dbg_print();
   Serial.println("Test Proc 2!");
   pkt_mainrx = ble_receive();
-  Serial.println(pkt_mainrx.CFangleZ_data);
-  if ((pkt_mainrx.CFangleZ_data > -2.0) && (pkt_mainrx.CFangleZ_data < 2.0))
+  Serial.println(pkt_mainrx.CFangle_data);
+  if ((pkt_mainrx.CFangle_data > -2.0) && (pkt_mainrx.CFangle_data < 2.0))
   {
     setup_hoistController();
     //set_lower_mode();
@@ -79,7 +80,7 @@ void test_proc2()
     set_pwm_speed(5);
     Serial.println("DOWN!");
   }
-  else if ((pkt_mainrx.gyroZvel_data > -12.0) && (pkt_mainrx.gyroZvel_data < 12.0))
+  else if ((pkt_mainrx.gyrovel_data > -12.0) && (pkt_mainrx.gyrovel_data < 12.0))
   {
     setup_hoistController();
     set_raise_mode();
@@ -98,9 +99,9 @@ void test_proc2()
 void dbg_print()
 {
   Serial.print("Main RX: ");
-  Serial.print(pkt_mainrx.CFangleZ_data);
+  Serial.print(pkt_mainrx.CFangle_data);
   Serial.print(" ");
-  Serial.println(pkt_mainrx.gyroZvel_data);
+  Serial.println(pkt_mainrx.gyrovel_data);
 }
 
 void setup() 
@@ -115,9 +116,8 @@ void setup()
   setup_LCD(tft);
   pkt_mainrx.CFangleX_data = 0.0;
   pkt_mainrx.gyroXvel_data = 0.0;
-  pkt_mainrx.CFangleZ_data = 0.0;
-  pkt_mainrx.gyroZvel_data = 0.0;
-  pkt_mainrx.time_stamp = 0.0;
+  pkt_mainrx.CFangle_data = 0.0;
+  pkt_mainrx.gyrovel_data = 0.0;
   Serial.println("SETUP COMPLETED!");
 } //END VOID SETUP()
 
@@ -171,16 +171,16 @@ void loop()
       pkt_mainrx = ble_receive();
       dbg_print();
       Serial.println("Receiving BLE");
-      writeToSD(pkt_mainrx, bootmode, elapsed_time);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time, startTime);
       //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       setup_hoistController();
-      set_raise_mode();
-      //set_lower_mode();
-      set_pwm_speed(90);
+      //set_raise_mode();
+      set_lower_mode();
+      set_pwm_speed(20);
       Serial.println("outputting 90%");
       pkt_mainrx = ble_receive();
       dbg_print();
-      writeToSD(pkt_mainrx, bootmode, elapsed_time);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time, startTime);
       //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
 
     }
@@ -190,12 +190,12 @@ void loop()
       LCD_printStabOff(tft);
       //Pulling up speed 25% and log data
       pkt_mainrx = ble_receive();
-      writeToSD(pkt_mainrx, bootmode, elapsed_time);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time, startTime);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       set_lower_mode();
       set_pwm_speed(25);
       pkt_mainrx = ble_receive();
-      writeToSD(pkt_mainrx, bootmode, elapsed_time);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time, startTime);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);      
     }
     else 

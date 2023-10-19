@@ -1,3 +1,4 @@
+#include "core_pins.h"
 /*
   SD card datalogger
  
@@ -48,7 +49,7 @@ void setup_SD()
   Serial.println("card initialized.");
 }
 
-void writeToSD(struct Packet pkt_mainrx, uint8_t &bootmode, float &elapsed_time)
+void writeToSD(struct Packet pkt_mainrx, uint8_t &bootmode, double &elapsed_time, long &startTime)
 {
   String dataString = "Test Start! ";
   File dataFile = SD.open("datalog.txt", FILE_WRITE);
@@ -56,6 +57,7 @@ void writeToSD(struct Packet pkt_mainrx, uint8_t &bootmode, float &elapsed_time)
   if (bootmode == 0)
   {
     elapsed_time = 0;
+    startTime = millis();
     dataString = "Starting Test! ";
     bootmode = 1;
     if (dataFile) 
@@ -89,13 +91,26 @@ void writeToSD(struct Packet pkt_mainrx, uint8_t &bootmode, float &elapsed_time)
       dataFile.print(" ");
       */
       //sample++;
-      elapsed_time += pkt_mainrx.time_stamp;
+      //elapsed_time = pkt_mainrx.time_stamp + elapsed_time;
+      //Serial.print("Elapsed Time SD: ");
+      //Serial.println(elapsed_time);
+      long time_lap = millis() - startTime;
+      double time_lap_sec = (double) time_lap / 1000;
+      elapsed_time = (double) (time_lap_sec / 1000) + elapsed_time;
+      Serial.print("Start Time: ");
+      Serial.print(startTime);
+      Serial.print(" ");
+      Serial.print("Time Lap (s): ");
+      Serial.print(time_lap_sec);     
+      Serial.print(" ");
+      Serial.print("Elapsed time: ");
+      Serial.println(elapsed_time);
       dataFile.print(elapsed_time);
       dataFile.print(" ");
-      dataFile.print(pkt_mainrx.CFangleZ_data);
+      dataFile.print(pkt_mainrx.CFangle_data);
       dataFile.print(" ");
-      dataFile.println(pkt_mainrx.gyroZvel_data);
-      
+      dataFile.println(pkt_mainrx.gyrovel_data);
+
     }
     else 
     {

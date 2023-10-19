@@ -46,9 +46,9 @@ struct Packet ble_receive()
     Serial.print(" ");
     Serial.print(pkt_rx.gyroXvel_data);
     Serial.print(" ");
-    Serial.print(pkt_rx.CFangleZ_data);
+    Serial.print(pkt_rx.CFangle_data);
     Serial.print(" ");
-    Serial.println(pkt_rx.gyroZvel_data);    
+    Serial.println(pkt_rx.gyrovel_data);    
     
 
     //pkt_mainrx.CFangleX_data = pkt_rx.CFangleX_data;

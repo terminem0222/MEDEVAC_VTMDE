@@ -35,13 +35,84 @@ float CFangleX = 0.0;
 float CFangleY = 0.0;
 float CFangleZ = 0.0;
 float heading = 0.0;
-float tilt = 0.0;
+
+
 
 struct Packet pkt_payload;
 
-unsigned long startTime = 0;
-unsigned long elapsed_time = 0;
-float time_stamp = 0.0;
+//Used by Kalman Filters
+float Q_angle  =  0.01;
+float Q_gyro   =  0.0003;
+float R_angle  =  0.01;
+float x_bias = 0;
+float y_bias = 0;
+float XP_00 = 0, XP_01 = 0, XP_10 = 0, XP_11 = 0;
+float YP_00 = 0, YP_01 = 0, YP_10 = 0, YP_11 = 0;
+float KFangleX = 0.0;
+float KFangleY = 0.0;
+
+
+
+//For Time stamp
+long startTime = 0;
+long elapsed_time = 0;
+double time_stamp = 0.0;
+
+float kalmanFilterX(float accAngle, float gyroRate)
+{
+	float  y, S;
+	float K_0, K_1;
+
+
+	KFangleX += DT * (gyroRate - x_bias);
+
+	XP_00 +=  - DT * (XP_10 + XP_01) + Q_angle * DT;
+	XP_01 +=  - DT * XP_11;
+	XP_10 +=  - DT * XP_11;
+	XP_11 +=  + Q_gyro * DT;
+
+	y = accAngle - KFangleX;
+	S = XP_00 + R_angle;
+	K_0 = XP_00 / S;
+	K_1 = XP_10 / S;
+
+	KFangleX +=  K_0 * y;
+	x_bias  +=  K_1 * y;
+	XP_00 -= K_0 * XP_00;
+	XP_01 -= K_0 * XP_01;
+	XP_10 -= K_1 * XP_00;
+	XP_11 -= K_1 * XP_01;
+
+	return KFangleX;
+}
+
+float kalmanFilterY(float accAngle, float gyroRate)
+{
+	float  y, S;
+	float K_0, K_1;
+
+
+	KFangleY += DT * (gyroRate - y_bias);
+
+	YP_00 +=  - DT * (YP_10 + YP_01) + Q_angle * DT;
+	YP_01 +=  - DT * YP_11;
+	YP_10 +=  - DT * YP_11;
+	YP_11 +=  + Q_gyro * DT;
+
+	y = accAngle - KFangleY;
+	S = YP_00 + R_angle;
+	K_0 = YP_00 / S;
+	K_1 = YP_10 / S;
+
+	KFangleY +=  K_0 * y;
+	y_bias  +=  K_1 * y;
+	YP_00 -= K_0 * YP_00;
+	YP_01 -= K_0 * YP_01;
+	YP_10 -= K_1 * YP_00;
+	YP_11 -= K_1 * YP_01;
+
+	return KFangleY;
+}
 
 void writeTo(int device, byte address, byte val) {
    Wire.beginTransmission(device); //start transmission to device 
@@ -140,7 +211,6 @@ void berryIMU_measure()
   AccXangle = (float) (atan2(accRaw[1],accRaw[2])+M_PI)*RAD_TO_DEG;
   AccYangle = (float) (atan2(accRaw[2],accRaw[0])+M_PI)*RAD_TO_DEG;
   AccZangle = (float) (asin(accRaw[2] / (sqrt(pow(accRaw[0], 2) + pow(accRaw[1], 2) + pow(accRaw[2], 2)) ))) * RAD_TO_DEG;
-  tilt = (float) acos(accRaw[2] / (accRaw[0] + pow(accRaw[1], 2) + pow(accRaw[2], 2))) * RAD_TO_DEG;
 
   //If IMU is up the correct way, use these lines
   AccZangle -= (float) 90.0;
@@ -155,10 +225,16 @@ void berryIMU_measure()
   CFangleY=AA*(CFangleY+rate_gyr_y*DT) +(1 - AA) * AccYangle;
   CFangleZ = (AA*(CFangleZ+rate_gyr_z*DT) +(1 - AA) * AccZangle);
   
+  // Kalman
+  CFangleX= kalmanFilterX(AccXangle, rate_gyr_x);
+  CFangleY= kalmanFilterY(AccYangle, rate_gyr_y);
+
+  //Tilt Compensation
 
   //Compute heading  
   heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
-  
+  //heading = (int) 180*atan2(magYcomp,magXcomp)/M_PI;
+
   //Convert heading to 0 - 360
   if(heading < 0)
   {
@@ -171,15 +247,25 @@ void berryIMU_measure()
   {
     delay(1);
   }
-  Serial.print( millis()- startTime);
+  
   elapsed_time = millis() - startTime;
-  time_stamp = (float) elapsed_time / 1000.0;
+  //Serial.print(elapsed_time);
+  time_stamp = (double) elapsed_time / 1000.0;
 
-  pkt_payload.time_stamp = time_stamp;
   pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
-  pkt_payload.CFangleZ_data = CFangleZ;
-  pkt_payload.gyroZvel_data = rate_gyr_z;
+
+  if ((heading <= 45) || (heading >= 315) || ((heading >= 135) && (heading <= 225)))
+  {
+    pkt_payload.CFangle_data = CFangleX;
+    pkt_payload.gyrovel_data = rate_gyr_x;
+  }
+  else
+  {
+    pkt_payload.CFangle_data = CFangleY;
+    pkt_payload.gyrovel_data = rate_gyr_y;
+  }
+
 }
 
 float getAccXangle()
@@ -209,6 +295,8 @@ float getGyroZangle()
 
 void dbg_print()
 {
+  //Serial.print("Time Stamp:\t");
+  //Serial.print(pkt_payload.time_stamp);
   Serial.print("AccX\t");
   Serial.print(AccXangle);
   Serial.print("\t#  AccY\t");
@@ -225,10 +313,22 @@ void dbg_print()
   Serial.print(CFangleX);
   Serial.print("\t# CFangleY\t");
   Serial.print(CFangleY);
-  Serial.print("\t# CFangleZ\t");
-  Serial.print(CFangleZ);
-  Serial.print("\t# Tilt");
-  Serial.print(tilt);   
+  Serial.print("\t# CFangle\t");
+  Serial.print(pkt_payload.CFangle_data); 
+  /*
+  Serial.print("\t# AccXNorm\t");
+  Serial.print(accXnorm);
+  Serial.print("\t# AccYNorm\t");
+  Serial.print(accYnorm); 
+  Serial.print("\t# Pitch\t");
+  Serial.print(pitch);  
+  Serial.print("\t# Roll\t");
+  Serial.print(roll);  
+  Serial.print("\t# MagXComp\t");
+  Serial.print(magXcomp);  
+  Serial.print("\t# MagYComp\t");
+  Serial.print(magYcomp);  
+  */
   Serial.print("\t# Heading\t ");
   Serial.println(heading);
 }
