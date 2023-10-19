@@ -14,6 +14,7 @@ struct Packet
   float gyroXvel_data;
   float CFangleZ_data;
   float gyroZvel_data;
+  float time_stamp;
 };
 
 #ifdef PAYLOAD

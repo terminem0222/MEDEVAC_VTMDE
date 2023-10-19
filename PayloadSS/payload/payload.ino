@@ -35,10 +35,13 @@ float CFangleX = 0.0;
 float CFangleY = 0.0;
 float CFangleZ = 0.0;
 float heading = 0.0;
+float tilt = 0.0;
 
 struct Packet pkt_payload;
 
-unsigned long startTime;
+unsigned long startTime = 0;
+unsigned long elapsed_time = 0;
+float time_stamp = 0.0;
 
 void writeTo(int device, byte address, byte val) {
    Wire.beginTransmission(device); //start transmission to device 
@@ -137,6 +140,7 @@ void berryIMU_measure()
   AccXangle = (float) (atan2(accRaw[1],accRaw[2])+M_PI)*RAD_TO_DEG;
   AccYangle = (float) (atan2(accRaw[2],accRaw[0])+M_PI)*RAD_TO_DEG;
   AccZangle = (float) (asin(accRaw[2] / (sqrt(pow(accRaw[0], 2) + pow(accRaw[1], 2) + pow(accRaw[2], 2)) ))) * RAD_TO_DEG;
+  tilt = (float) acos(accRaw[2] / (accRaw[0] + pow(accRaw[1], 2) + pow(accRaw[2], 2))) * RAD_TO_DEG;
 
   //If IMU is up the correct way, use these lines
   AccZangle -= (float) 90.0;
@@ -150,7 +154,7 @@ void berryIMU_measure()
   CFangleX=AA*(CFangleX+rate_gyr_x*DT) +(1 - AA) * AccXangle;
   CFangleY=AA*(CFangleY+rate_gyr_y*DT) +(1 - AA) * AccYangle;
   CFangleZ = (AA*(CFangleZ+rate_gyr_z*DT) +(1 - AA) * AccZangle);
-  //CFangleZ += (float) 2.0;
+  
 
   //Compute heading  
   heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
@@ -168,7 +172,10 @@ void berryIMU_measure()
     delay(1);
   }
   Serial.print( millis()- startTime);
+  elapsed_time = millis() - startTime;
+  time_stamp = (float) elapsed_time / 1000.0;
 
+  pkt_payload.time_stamp = time_stamp;
   pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
   pkt_payload.CFangleZ_data = CFangleZ;
@@ -219,7 +226,9 @@ void dbg_print()
   Serial.print("\t# CFangleY\t");
   Serial.print(CFangleY);
   Serial.print("\t# CFangleZ\t");
-  Serial.print(CFangleZ);  
+  Serial.print(CFangleZ);
+  Serial.print("\t# Tilt");
+  Serial.print(tilt);   
   Serial.print("\t# Heading\t ");
   Serial.println(heading);
 }

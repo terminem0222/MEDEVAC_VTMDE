@@ -23,11 +23,13 @@ void config_SPEED_HOIST_PIN()
 void config_LOWERING_RELAY_PIN()
 {
   pinMode(LOWERING_RELAY_PIN, OUTPUT);
+  digitalWrite(LOWERING_RELAY_PIN, HIGH);
 }
 
 void config_RAISING_RELAY_PIN()
 {
   pinMode(RAISING_RELAY_PIN, OUTPUT);
+  digitalWrite(RAISING_RELAY_PIN, HIGH);
 }
 
 void config_EN_RELAY_PIN()

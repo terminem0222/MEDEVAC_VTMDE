@@ -20,6 +20,7 @@ void ble_transmit(struct Packet toSend)
   pkt_tx.gyroXvel_data = toSend.gyroXvel_data;
   pkt_tx.CFangleZ_data = toSend.CFangleZ_data;
   pkt_tx.gyroZvel_data = toSend.gyroZvel_data;
+  pkt_tx.time_stamp = toSend.time_stamp;
 
   payloadBTSerial.write((byte *) & pkt_tx,sizeof(Packet));
   Serial.print("TX: ");

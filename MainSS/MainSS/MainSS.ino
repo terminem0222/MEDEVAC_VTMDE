@@ -25,6 +25,8 @@
 //Global Variables:
 uint8_t bootmode = 0;
 long long sample = 0;
+float elapsed_time = 0.0;
+
 struct Packet pkt_mainrx;
 ezButton algoSwitch(ALGO_SWITCH);
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
@@ -115,6 +117,7 @@ void setup()
   pkt_mainrx.gyroXvel_data = 0.0;
   pkt_mainrx.CFangleZ_data = 0.0;
   pkt_mainrx.gyroZvel_data = 0.0;
+  pkt_mainrx.time_stamp = 0.0;
   Serial.println("SETUP COMPLETED!");
 } //END VOID SETUP()
 
@@ -168,7 +171,7 @@ void loop()
       pkt_mainrx = ble_receive();
       dbg_print();
       Serial.println("Receiving BLE");
-      writeToSD(pkt_mainrx, bootmode, sample);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time);
       //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       setup_hoistController();
       set_raise_mode();
@@ -177,7 +180,7 @@ void loop()
       Serial.println("outputting 90%");
       pkt_mainrx = ble_receive();
       dbg_print();
-      writeToSD(pkt_mainrx, bootmode, sample);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time);
       //LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
 
     }
@@ -187,12 +190,12 @@ void loop()
       LCD_printStabOff(tft);
       //Pulling up speed 25% and log data
       pkt_mainrx = ble_receive();
-      writeToSD(pkt_mainrx, bootmode, sample);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);
       set_lower_mode();
       set_pwm_speed(25);
       pkt_mainrx = ble_receive();
-      writeToSD(pkt_mainrx, bootmode, sample);
+      writeToSD(pkt_mainrx, bootmode, elapsed_time);
       LCD_printData(tft, pkt_mainrx.CFangleX_data, pkt_mainrx.gyroXvel_data);      
     }
     else 

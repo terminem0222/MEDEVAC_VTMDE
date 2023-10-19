@@ -48,14 +48,14 @@ void setup_SD()
   Serial.println("card initialized.");
 }
 
-void writeToSD(struct Packet pkt_mainrx, uint8_t bootmode, long long sample)
+void writeToSD(struct Packet pkt_mainrx, uint8_t &bootmode, float &elapsed_time)
 {
   String dataString = "Test Start! ";
   File dataFile = SD.open("datalog.txt", FILE_WRITE);
 
   if (bootmode == 0)
   {
-    sample = 0;
+    elapsed_time = 0;
     dataString = "Starting Test! ";
     bootmode = 1;
     if (dataFile) 
@@ -77,6 +77,7 @@ void writeToSD(struct Packet pkt_mainrx, uint8_t bootmode, long long sample)
   {
     if(dataFile)
     {
+      /*
       dataFile.print("Sample: ");
       dataFile.print(String(sample));
       dataFile.print(" ");
@@ -86,7 +87,15 @@ void writeToSD(struct Packet pkt_mainrx, uint8_t bootmode, long long sample)
       dataFile.print("AngleX: ");
       dataFile.print(String(pkt_mainrx.CFangleX_data));
       dataFile.print(" ");
-      sample++;
+      */
+      //sample++;
+      elapsed_time += pkt_mainrx.time_stamp;
+      dataFile.print(elapsed_time);
+      dataFile.print(" ");
+      dataFile.print(pkt_mainrx.CFangleZ_data);
+      dataFile.print(" ");
+      dataFile.println(pkt_mainrx.gyroZvel_data);
+      
     }
     else 
     {
