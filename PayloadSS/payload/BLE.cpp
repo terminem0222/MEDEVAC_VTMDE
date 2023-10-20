@@ -18,10 +18,13 @@ void ble_transmit(struct Packet toSend)
 {
   pkt_tx.CFangleX_data = toSend.CFangleX_data;
   pkt_tx.gyroXvel_data = toSend.gyroXvel_data;
-  pkt_tx.CFangle_data = toSend.CFangle_data;
-  pkt_tx.gyrovel_data = toSend.gyrovel_data;
+  pkt_tx.CFangleY_data = toSend.CFangleY_data;
+  pkt_tx.gyroYvel_data = toSend.gyroYvel_data;
+  pkt_tx.CFangle_data = toSend.CFangleX_data;
+  pkt_tx.gyrovel_data = toSend.gyroXvel_data;
 
   payloadBTSerial.write((byte *) & pkt_tx,sizeof(Packet));
+  /*
   Serial.print("TX: ");
   //Serial.print(" ");
   //Serial.print(pkt_tx.gyroXvel_data);
@@ -29,6 +32,7 @@ void ble_transmit(struct Packet toSend)
   Serial.print(pkt_tx.CFangle_data);
   Serial.print(" ");
   Serial.println(pkt_tx.gyrovel_data);
+  */
 }
 #endif
 
@@ -43,13 +47,13 @@ void ble_receive()
   {
     // Read in the appropriate number of bytes to fit our Packet
     Serial1.readBytes((byte *) & pkt_rx,sizeof(Packet));
-
+    
     // Print the Packet contents
     Serial.print("RX: ");
     Serial.print(pkt_rx.CFangleX_data);
     Serial.print(" ");
     Serial.println(pkt_rx.gyroXvel_data);
-
+    
     // Flush the serial buffer
     while(Serial1.available() > 0)
       Serial1.read();   

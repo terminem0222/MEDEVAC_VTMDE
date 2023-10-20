@@ -10,16 +10,29 @@ struct Packet pkt_tx;
 struct Packet pkt_rx;
 
 #ifdef PAYLOAD
+void blePayload_setup()
+{
+  payloadBTSerial.begin(BLE_BAUDRATE);
+}
 void ble_transmit(struct Packet toSend)
 {
   pkt_tx.CFangleX_data = toSend.CFangleX_data;
   pkt_tx.gyroXvel_data = toSend.gyroXvel_data;
+  pkt_tx.CFangleX_data = toSend.CFangleY_data;
+  pkt_tx.gyroXvel_data = toSend.gyroYvel_data;
+  pkt_tx.CFangle_data = toSend.CFangle_data;
+  pkt_tx.gyrovel_data = toSend.gyrovel_data;
 
   payloadBTSerial.write((byte *) & pkt_tx,sizeof(Packet));
+  /*
   Serial.print("TX: ");
-  Serial.print(pkt_tx.CFangleX_data);
+  //Serial.print(" ");
+  //Serial.print(pkt_tx.gyroXvel_data);
   Serial.print(" ");
-  Serial.println(pkt_tx.gyroXvel_data);
+  Serial.print(pkt_tx.CFangle_data);
+  Serial.print(" ");
+  Serial.println(pkt_tx.gyrovel_data);
+  */
 }
 #endif
 
@@ -40,6 +53,7 @@ struct Packet ble_receive()
     // Read in the appropriate number of bytes to fit our Packet
     Serial6.readBytes((byte *) & pkt_rx,sizeof(Packet));
 
+    /*
     // Print the Packet contents
     Serial.print("RX: ");
     Serial.print(pkt_rx.CFangleX_data);
@@ -49,7 +63,7 @@ struct Packet ble_receive()
     Serial.print(pkt_rx.CFangle_data);
     Serial.print(" ");
     Serial.println(pkt_rx.gyrovel_data);    
-    
+    */
 
     //pkt_mainrx.CFangleX_data = pkt_rx.CFangleX_data;
     //pkt_mainrx.gyroXvel_data = pkt_rx.gyroXvel_data;
@@ -72,6 +86,9 @@ struct Packet ble_receive()
     }
     count++;
   }
+
+  //pkt_rx.CFangle_data = sqrt(pow(pkt_rx.CFangleX_data, 2) + pow(pkt_rx.CFangleY_data, 2));
+  //pkt_rx.gyrovel_data = sqrt(pow(pkt_rx.gyroXvel_data, 2) + pow(pkt_rx.gyroYvel_data, 2));
   return pkt_rx;
 }
 #endif

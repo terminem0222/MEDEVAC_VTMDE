@@ -5,18 +5,21 @@
 #include "LIS3MDL.h"
 #include "BLE.h"
 
+
 #define BAUDRATE 115200
 #define DT  0.02          // Loop time E.g 0.02 = 20 milliseconds
 #define AA  0.97         // complementary filter constant
 #define G_GAIN 0.070    // [deg/s/LSB]
 
+
+
 /* Gyro calibration */
-#define magXmax 1893
-#define magYmax 1023
-#define magZmax 1050
-#define magXmin -1407
-#define magYmin -3101
-#define magZmin -2174
+int magXmax = 1893;
+int magYmax = 1023;
+int magZmax = 1050;
+int magXmin = -1407;
+int magYmin = -3101;
+int magZmin = -2174;
 
 byte buff[6];
 int accRaw[3];
@@ -35,6 +38,15 @@ float CFangleX = 0.0;
 float CFangleY = 0.0;
 float CFangleZ = 0.0;
 float heading = 0.0;
+float dummy = 0.0;
+float dummy_vel = 0.0;
+
+float accXnorm = 0.0;
+float accYnorm = 0.0;
+float pitch = 0.0;
+float roll = 0.0;
+float magXcomp = 0.0;
+float magYcomp = 0.0;
 
 
 
@@ -185,6 +197,35 @@ void berryIMU_measure()
   magRaw[0] = (int)(buff[0] | (buff[1] << 8));   
   magRaw[1] = (int)(buff[2] | (buff[3] << 8));
   magRaw[2] = (int)(buff[4] | (buff[5] << 8));
+  
+  /* Added hardiron calib */
+  /*
+  if (magRaw[0] > magXmax)
+  {
+    magXmax = magRaw[0];
+  } 
+  if (magRaw[1] > magYmax) 
+  {
+    magYmax = magRaw[1];
+  }
+  if (magRaw[2] > magZmax) 
+  {
+    magZmax = magRaw[2];
+  }
+
+  if (magRaw[0] < magXmin) 
+  {
+    magXmin = magRaw[0];
+  }
+  if (magRaw[1] < magYmin) 
+  {
+    magYmin = magRaw[1];
+  }
+  if (magRaw[2] < magZmin) {
+    magZmin = magRaw[2];
+  }
+  */
+
   magRaw[0] -= (magXmin + magXmax) /2 ;
   magRaw[1] -= (magYmin + magYmax) /2 ;
   magRaw[2] -= (magZmin + magZmax) /2 ;
@@ -210,10 +251,9 @@ void berryIMU_measure()
     //Convert Accelerometer values to degrees
   AccXangle = (float) (atan2(accRaw[1],accRaw[2])+M_PI)*RAD_TO_DEG;
   AccYangle = (float) (atan2(accRaw[2],accRaw[0])+M_PI)*RAD_TO_DEG;
-  AccZangle = (float) (asin(accRaw[2] / (sqrt(pow(accRaw[0], 2) + pow(accRaw[1], 2) + pow(accRaw[2], 2)) ))) * RAD_TO_DEG;
+  
 
   //If IMU is up the correct way, use these lines
-  AccZangle -= (float) 90.0;
   AccXangle -= (float)180.0;
   if (AccYangle > 90)
     AccYangle -= (float)270;
@@ -223,24 +263,35 @@ void berryIMU_measure()
   //Complementary filter used to combine the accelerometer and gyro values.
   CFangleX=AA*(CFangleX+rate_gyr_x*DT) +(1 - AA) * AccXangle;
   CFangleY=AA*(CFangleY+rate_gyr_y*DT) +(1 - AA) * AccYangle;
-  CFangleZ = (AA*(CFangleZ+rate_gyr_z*DT) +(1 - AA) * AccZangle);
-  
+
+
   // Kalman
   CFangleX= kalmanFilterX(AccXangle, rate_gyr_x);
   CFangleY= kalmanFilterY(AccYangle, rate_gyr_y);
-
+  //dummy = sqrt(pow(CFangleX, 2) + pow(CFangleY, 2));
+  //dummy_vel = sqrt(pow(rate_gyr_x, 2) + pow(rate_gyr_y, 2));
   //Tilt Compensation
+  /*
+  //Normalize accelerometer raw values.
+	accXnorm = accRaw[0]/sqrt(accRaw[0] * accRaw[0] + accRaw[1] * accRaw[1] + accRaw[2] * accRaw[2]);
+	accYnorm = accRaw[1]/sqrt(accRaw[0] * accRaw[0] + accRaw[1] * accRaw[1] + accRaw[2] * accRaw[2]);
+  //Calculate pitch and roll
+	pitch = asin(accXnorm);
+	roll = -asin(accYnorm/cos(pitch));
+  magXcomp = magRaw[0]*cos(pitch)+magRaw[2]*sin(pitch);
+  magYcomp = magRaw[0]*sin(roll)*sin(pitch)+magRaw[1]*cos(roll)+magRaw[2]*sin(roll)*cos(pitch); // LSM9DS0
+  */
 
   //Compute heading  
-  heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
-  //heading = (int) 180*atan2(magYcomp,magXcomp)/M_PI;
+  //heading = 180 * atan2(magRaw[1],magRaw[0])/M_PI;
 
+  
   //Convert heading to 0 - 360
   if(heading < 0)
   {
     heading += 360;
   }
-            
+
 
   //Each loop should be at least DT
   while(millis() - startTime < (DT*1000))
@@ -248,23 +299,13 @@ void berryIMU_measure()
     delay(1);
   }
   
-  elapsed_time = millis() - startTime;
-  //Serial.print(elapsed_time);
-  time_stamp = (double) elapsed_time / 1000.0;
 
-  pkt_payload.CFangleX_data = CFangleX;
+  /*pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
-
-  if ((heading <= 45) || (heading >= 315) || ((heading >= 135) && (heading <= 225)))
-  {
-    pkt_payload.CFangle_data = CFangleX;
-    pkt_payload.gyrovel_data = rate_gyr_x;
-  }
-  else
-  {
-    pkt_payload.CFangle_data = CFangleY;
-    pkt_payload.gyrovel_data = rate_gyr_y;
-  }
+  pkt_payload.CFangleY_data = CFangleY;
+  pkt_payload.gyroYvel_data = rate_gyr_y;*/
+  pkt_payload.CFangle_data = CFangleX;
+  pkt_payload.gyrovel_data = rate_gyr_x;
 
 }
 
@@ -297,6 +338,7 @@ void dbg_print()
 {
   //Serial.print("Time Stamp:\t");
   //Serial.print(pkt_payload.time_stamp);
+  
   Serial.print("AccX\t");
   Serial.print(AccXangle);
   Serial.print("\t#  AccY\t");
@@ -313,8 +355,16 @@ void dbg_print()
   Serial.print(CFangleX);
   Serial.print("\t# CFangleY\t");
   Serial.print(CFangleY);
+  Serial.print("\t# CFangleZ\t");
+  Serial.print(CFangleZ);  
   Serial.print("\t# CFangle\t");
-  Serial.print(pkt_payload.CFangle_data); 
+  Serial.print(pkt_payload.CFangle_data);
+  Serial.print("\t# X vel\t");
+  Serial.print(rate_gyr_x);
+  Serial.print("\t# Y vel\t");
+  Serial.print(rate_gyr_y);  
+  Serial.print("\t# Dummy:\t");
+  Serial.print(dummy);  
   /*
   Serial.print("\t# AccXNorm\t");
   Serial.print(accXnorm);
@@ -346,7 +396,7 @@ void setup()
 void loop() 
 {
   // put your main code here, to run repeatedly:
-  Serial.print("Starting \n");
+  //Serial.print("Starting \n");
   berryIMU_measure();
   //delay(3000);
   dbg_print();
