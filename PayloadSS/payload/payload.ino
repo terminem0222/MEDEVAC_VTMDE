@@ -300,9 +300,9 @@ void berryIMU_measure()
   }
   
 
-  /*pkt_payload.CFangleX_data = CFangleX;
+  pkt_payload.CFangleX_data = CFangleX;
   pkt_payload.gyroXvel_data = rate_gyr_x;
-  pkt_payload.CFangleY_data = CFangleY;
+  /*pkt_payload.CFangleY_data = CFangleY;
   pkt_payload.gyroYvel_data = rate_gyr_y;*/
   pkt_payload.CFangle_data = CFangleX;
   pkt_payload.gyrovel_data = rate_gyr_x;
