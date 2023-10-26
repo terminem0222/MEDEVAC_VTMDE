@@ -199,7 +199,7 @@ void berryIMU_measure()
   magRaw[2] = (int)(buff[4] | (buff[5] << 8));
   
   /* Added hardiron calib */
-  /*
+  
   if (magRaw[0] > magXmax)
   {
     magXmax = magRaw[0];
@@ -224,7 +224,7 @@ void berryIMU_measure()
   if (magRaw[2] < magZmin) {
     magZmin = magRaw[2];
   }
-  */
+  
 
   magRaw[0] -= (magXmin + magXmax) /2 ;
   magRaw[1] -= (magYmin + magYmax) /2 ;

@@ -1,3 +1,4 @@
+#include <stdint.h>
 #define PAYLOAD 1
 #define ARDUINO 1
 #ifdef ARDUINO
@@ -27,9 +28,3 @@ void ble_transmit(struct Packet toSend);
 void ble_receive();
 #endif
 void ble_setup();
-
-
-
-
-
-
